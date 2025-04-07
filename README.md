@@ -3,6 +3,7 @@ A repository with files for automatic installation and launch of docker containe
 1) Clone repository
 2) Create .env with ANSIBLE_HOST, ANSIBLE_PASSWORD, ANSIBLE_USER, DOCKER_USERNAME, DOCKER_PASSWORD (the last three are optional)
 3) Build image
-   docker build -t ansible-image .
-4) Run compose
-   docker compose up
+   "docker build -t ansible-image ."
+4) In docker-compose.yml change CONTAINER_NAME and IMAGE_NAME
+5) Run compose
+   "docker compose up"
