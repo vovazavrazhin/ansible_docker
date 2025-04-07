@@ -1,0 +1,13 @@
+version: '3'
+services:
+  ansible:
+    image: ansible-image
+    env_file: .env
+    environment:
+      - ANSIBLE_HOST=${ANSIBLE_HOST}
+      - ANSIBLE_USER=${ANSIBLE_USER:-root}
+      - ANSIBLE_PASSWORD=${ANSIBLE_PASSWORD}
+      - DOCKER_USERNAME=${DOCKER_USERNAME}
+      - DOCKER_PASSWORD=${DOCKER_PASSWORD}
+      - CONTAINER_NAME=alpine
+      - IMAGE_NAME=alpine:latest
