@@ -1,0 +1,67 @@
+---
+- name: INSTALL DOCKER ON DEBIAN/UBUNTU
+  hosts: all
+  become: yes
+  tasks:
+
+    - name: UPDATE CACHE
+      apt:
+        update_cache: yes
+
+    - name: INSTALL DEPENDENCIES
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - software-properties-common
+        state: present
+
+    - name: ADD GPG KEY
+      apt_key:
+        url: https://download.docker.com/linux/{{ (ansible_distribution == 'Debian') | ternary('debian', 'ubuntu') }}/gpg
+        state: present
+
+    - name: SET DOCKER REPOSITORY BASED ON DISTRIBUTION
+      set_fact:
+        docker_repo: "deb [arch=amd64] https://download.docker.com/linux/{{ (ansible_distribution == 'Debian') | ternary('debian', 'ubuntu') }} {{ (ansible_distribution == 'Debian') | ternary(ansible_distribution_release, ansible_lsb.codename) }} stable"
+
+    - name: ADD REPOSITORY DOCKER
+      apt_repository:
+        repo: "{{ docker_repo }}"
+        state: present
+
+    - name: UPDATE CACHE
+      apt:
+        update_cache: yes
+
+    - name: INSTALL DOCKER
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: present
+
+    - name: START DOCKER
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: LOGIN DOCKER
+      docker_login:
+        username: "{{ lookup('env', 'DOCKER_USERNAME') | default('') }}"
+        password: "{{ lookup('env', 'DOCKER_PASSWORD') | default('') }}"
+      no_log: true
+      when:
+        - lookup('env', 'DOCKER_USERNAME') is defined
+        - lookup('env', 'DOCKER_PASSWORD') is defined
+
+    - name: START CONTAINER
+      docker_container:
+        name: "{{ lookup('env', 'CONTAINER_NAME') }}"
+        image: "{{ lookup('env', 'IMAGE_NAME') }}"
+        state: started
+        restart_policy: unless-stopped
